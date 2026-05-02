@@ -12,7 +12,6 @@
     </parent>
 
     <dependencies>
-
         <!-- Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -36,7 +35,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
-
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
