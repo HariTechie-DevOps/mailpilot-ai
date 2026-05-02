@@ -26,6 +26,34 @@ public class EmailService {
         }
     }
 
+    public void sendToShortlisted(List<Candidate> candidates) {
+
+        for (Candidate c : candidates) {
+
+            String subject = "Interview Invitation";
+            String body = "Dear " + c.getName() +
+                    ",\n\nYou are shortlisted for interview.\n\nRegards,\nHR";
+
+            sendEmail(c.getEmail(), subject, body);
+        }
+    }
+
+    public void scheduleInterview(List<Candidate> candidates, LocalDateTime time) {
+
+        for (Candidate c : candidates) {
+
+            c.setInterviewTime(time);
+            c.setStatus("INTERVIEW_SCHEDULED");
+
+            String subject = "Interview Scheduled";
+            String body = "Dear " + c.getName() +
+                    ",\n\nYour interview is scheduled at: " + time +
+                    "\n\nRegards,\nHR";
+
+            sendEmail(c.getEmail(), subject, body);
+        }
+    }
+    
     public String sendEmail(String to, String subject, String body) {
 
         SimpleMailMessage message = new SimpleMailMessage();
