@@ -20,6 +20,30 @@ public class EmailController {
     @Autowired
     private CandidateRepository candidateRepository;
 
+    @PostMapping("/send-shortlisted")
+    public String sendToShortlisted() {
+
+        List<Candidate> shortlisted =
+                candidateRepository.findByStatus("SHORTLISTED");
+
+        emailService.sendToShortlisted(shortlisted);
+
+        return "Emails sent to " + shortlisted.size() + " shortlisted candidates.";
+    }
+
+    @PostMapping("/schedule")
+    public String scheduleInterview(@RequestParam String time) {
+
+         LocalDateTime interviewTime = LocalDateTime.parse(time);
+
+        List<Candidate> shortlisted =
+                candidateRepository.findByStatus("SHORTLISTED");
+
+        emailService.scheduleInterview(shortlisted, interviewTime);
+
+        return "Interview scheduled for " + shortlisted.size() + " candidates.";
+    }
+
     @PostMapping("/send-to-all")
     public String sendToAll() {
         List<Candidate> all = candidateRepository.findAll();
