@@ -1,6 +1,7 @@
 package com.mailpilot.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 public class Candidate {
@@ -8,11 +9,17 @@ public class Candidate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String email;
+
+    // Example: APPLIED, SHORTLISTED, INTERVIEW_SCHEDULED
     private String status;
 
-    // Getters and Setters
+    private LocalDateTime interviewTime;
+
+    // Getters & Setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -24,4 +31,9 @@ public class Candidate {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public LocalDateTime getInterviewTime() { return interviewTime; }
+    public void setInterviewTime(LocalDateTime interviewTime) {
+        this.interviewTime = interviewTime;
+    }
 }
