@@ -52,8 +52,8 @@ public class EmailService {
 
     public void sendToShortlisted(List<Candidate> candidates) {
         for (Candidate c : candidates) {
-            String subject = "Status Update";
-            String body = "Dear " + c.getName() + ",\n\nYou have been shortlisted!";
+            String subject = "Congratulations! You are Shortlisted";
+            String body = "Dear " + c.getName() + ",\n\nWe are pleased to inform you that you have been shortlisted for the next round.";
             sendEmail(c.getEmail(), subject, body);
         }
     }
