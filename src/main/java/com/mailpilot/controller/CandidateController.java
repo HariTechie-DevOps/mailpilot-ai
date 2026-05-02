@@ -13,13 +13,22 @@ public class CandidateController {
     @Autowired
     private CandidateRepository candidateRepository;
 
+    // CREATE: Add a new candidate
     @PostMapping
     public Candidate addCandidate(@RequestBody Candidate candidate) {
         return candidateRepository.save(candidate);
     }
 
+    // READ: Get all candidates (This allows browser testing)
     @GetMapping
     public List<Candidate> getAllCandidates() {
         return candidateRepository.findAll();
+    }
+
+    // DELETE: Remove a candidate by ID
+    @DeleteMapping("/{id}")
+    public String deleteCandidate(@PathVariable Long id) {
+        candidateRepository.deleteById(id);
+        return "Candidate with ID " + id + " deleted successfully.";
     }
 }
