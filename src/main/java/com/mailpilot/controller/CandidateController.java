@@ -16,4 +16,9 @@ public class CandidateController {
     public Candidate addCandidate(@RequestBody Candidate candidate) {
         return candidateRepository.save(candidate);
     }
+
+    @GetMapping
+    public java.util.List<Candidate> getAllCandidates() {
+        return candidateRepository.findAll();
+    }
 }
