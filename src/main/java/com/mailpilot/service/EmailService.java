@@ -50,6 +50,14 @@ public class EmailService {
         }
     }
 
+    public void sendToShortlisted(List<Candidate> candidates) {
+        for (Candidate c : candidates) {
+            String subject = "Status Update";
+            String body = "Dear " + c.getName() + ",\n\nYou have been shortlisted!";
+            sendEmail(c.getEmail(), subject, body);
+        }
+    }
+
     private void saveLog(String to, String subject, String body, String status) {
         EmailLog log = new EmailLog();
         log.setRecipient(to);
