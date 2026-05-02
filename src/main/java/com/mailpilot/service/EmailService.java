@@ -18,6 +18,12 @@ public class EmailService {
     @Autowired
     private EmailLogRepository emailLogRepository;
 
+    public void sendBulkEmail(List<Candidate> candidates) {
+        for (Candidate c : candidates) {
+            sendEmail(c.getEmail(), "Interview Invite", "Hello " + c.getName());
+        }
+    }
+
     public String sendEmail(String to, String subject, String body) {
 
         SimpleMailMessage message = new SimpleMailMessage();
