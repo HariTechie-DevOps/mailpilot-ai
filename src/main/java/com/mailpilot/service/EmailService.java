@@ -20,6 +20,9 @@ public class EmailService {
     @Autowired
     private EmailLogRepository emailLogRepository;
 
+    @Autowired
+    private CandidateRepository candidateRepository; 
+
     public void sendBulkEmail(List<Candidate> candidates) {
         for (Candidate c : candidates) {
             sendEmail(c.getEmail(), "Interview Invite", "Hello " + c.getName());
@@ -44,6 +47,8 @@ public class EmailService {
 
             c.setInterviewTime(time);
             c.setStatus("INTERVIEW_SCHEDULED");
+
+            candidateRepository.save(c);
 
             String subject = "Interview Scheduled";
             String body = "Dear " + c.getName() +
