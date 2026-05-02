@@ -33,15 +33,20 @@ public class EmailController {
 
     @PostMapping("/schedule")
     public String scheduleInterview(@RequestParam String time) {
+        // Logical Check: Ensure the string has a 'T' (e.g., 2026-05-15T10:30:00)
+        try {
+            LocalDateTime interviewTime = LocalDateTime.parse(time);
+            List<Candidate> shortlisted = candidateRepository.findByStatus("SHORTLISTED");
+        
+            if (shortlisted.isEmpty()) {
+                return "No candidates found with status 'SHORTLISTED'. Please update your database.";
+            }
 
-         LocalDateTime interviewTime = LocalDateTime.parse(time);
-
-        List<Candidate> shortlisted =
-                candidateRepository.findByStatus("SHORTLISTED");
-
-        emailService.scheduleInterview(shortlisted, interviewTime);
-
-        return "Interview scheduled for " + shortlisted.size() + " candidates.";
+            emailService.scheduleInterview(shortlisted, interviewTime);
+            return "Interview scheduled for " + shortlisted.size() + " candidates.";
+        } catch (Exception e) {
+            return "Error: Invalid time format. Please use YYYY-MM-DDTHH:MM:SS";
+        }
     }
 
     @PostMapping("/send-to-all")
