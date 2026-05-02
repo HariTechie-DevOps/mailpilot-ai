@@ -18,6 +18,13 @@ public class EmailController {
     @Autowired
     private CandidateRepository candidateRepository;
 
+    @PostMapping("/send-to-all")
+    public String sendToAll() {
+        List<Candidate> all = candidateRepository.findAll();
+        emailService.sendBulkEmail(all);
+        return "Process started for " + all.size() + " candidates.";
+    }
+
     @PostMapping("/send-interview/{id}")
     public String sendInterviewEmail(@PathVariable Long id) {
 
