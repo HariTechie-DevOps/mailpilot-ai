@@ -26,7 +26,8 @@ public class EmailController {
         List<Candidate> shortlisted =
                 candidateRepository.findByStatus("SHORTLISTED");
 
-        emailService.scheduleInterview(shortlisted, LocalDateTime.now());
+        // Line 29 in EmailController.java
+        emailService.sendToShortlisted(shortlisted);
 
         return "Emails sent to " + shortlisted.size() + " shortlisted candidates.";
     }
