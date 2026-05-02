@@ -4,6 +4,7 @@ import com.mailpilot.model.Candidate;
 import com.mailpilot.repository.CandidateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/candidate")
@@ -18,7 +19,7 @@ public class CandidateController {
     }
 
     @GetMapping
-    public java.util.List<Candidate> getAllCandidates() {
+    public List<Candidate> getAllCandidates() {
         return candidateRepository.findAll();
     }
 }
