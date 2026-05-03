@@ -66,26 +66,33 @@ public class EmailService {
    public String processIncomingEmail(IncomingEmail email) {
         String intent = detectIntent(email.getBody());
 
-        // Find candidate by email address
-        Candidate candidate = candidateRepository.findAll().stream()
+        // 1. Logic: Collect ALL records that match this email
+        List<Candidate> matchingCandidates = candidateRepository.findAll().stream()
                 .filter(c -> c.getEmail().equalsIgnoreCase(email.getFrom()))
-                .findFirst()
-                .orElse(null);
+                .toList();
 
-        if (candidate == null) return "Candidate not found";
+        // 2. Logic: If no records exist, stop here
+        if (matchingCandidates.isEmpty()) {
+            return "Candidate not found";
+        }
 
+        // 3. Logic: Update EVERY matching record found
         switch (intent) {
             case "CONFIRM":
-                candidate.setStatus("CONFIRMED");
-                candidateRepository.save(candidate);
-                sendEmail(candidate.getEmail(), "Interview Confirmed", "Thank you for confirming.");
-                return "Confirmed processed";
+                matchingCandidates.forEach(c -> {
+                    c.setStatus("CONFIRMED");
+                    candidateRepository.save(c);
+                });
+                sendEmail(email.getFrom(), "Interview Confirmed", "Thank you for confirming.");
+                return "Confirmed processed for " + matchingCandidates.size() + " record(s)";
 
             case "RESCHEDULE":
-                candidate.setStatus("RESCHEDULE_REQUESTED");
-                candidateRepository.save(candidate);
-                sendEmail(candidate.getEmail(), "Reschedule Request Received", "We will contact you shortly.");
-                return "Reschedule request processed";
+                matchingCandidates.forEach(c -> {
+                    c.setStatus("RESCHEDULE_REQUESTED");
+                    candidateRepository.save(c);
+                });
+                sendEmail(email.getFrom(), "Reschedule Request Received", "We will contact you shortly.");
+                return "Reschedule request processed for " + matchingCandidates.size() + " record(s)";
 
             default:
                 return "Unknown intent";
