@@ -62,6 +62,22 @@ public class EmailController {
         return emailService.processIncomingEmail(email);
     }
 
+    @GetMapping("/report")
+    public String getRecruitmentReport() {
+        long confirmed = candidateRepository.countByStatus("CONFIRMED");
+        long shortlisted = candidateRepository.countByStatus("SHORTLISTED");
+        long rescheduled = candidateRepository.countByStatus("RESCHEDULE_REQUESTED");
+
+        return String.format(
+            "--- Recruitment Report ---\n" +
+            "Confirmed: %d\n" +
+            "Shortlisted: %d\n" +
+            "Reschedule Requested: %d\n" +
+            "Total Candidates: %d",
+            confirmed, shortlisted, rescheduled, candidateRepository.count()
+        );
+    }
+    
     @PostMapping("/send-interview/{id}")
     public String sendInterviewEmail(@PathVariable Long id) {
 
