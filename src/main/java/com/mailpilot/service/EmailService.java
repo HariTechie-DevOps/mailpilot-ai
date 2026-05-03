@@ -90,12 +90,19 @@ public class EmailService {
         if (intent.equals("UNKNOWN")) return "Unknown intent";
 
         matchingCandidates.forEach(c -> {
+            // --- NEW PROTECTION LOGIC START ---
+            // If the candidate is already WITHDRAWN, we block any further automatic updates.
+            if ("WITHDRAWN".equalsIgnoreCase(c.getStatus())) {
+                System.out.println("LOGIC BLOCK: Skipping update for " + c.getName() + " because they have already withdrawn.");
+                return; // This acts like 'continue' in a lambda, skipping to the next candidate.
+            }
+            // --- NEW PROTECTION LOGIC END ---
+
             if (intent.equals("CONFIRM")) {
                 c.setStatus("CONFIRMED");
             } else if (intent.equals("RESCHEDULE")) {
                 c.setStatus("RESCHEDULE_REQUESTED");
-            
-                // LOGIC: Entity Extraction for Days of the week
+        
                 String[] days = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
                 for (String day : days) {
                     if (body.contains(day)) {
@@ -112,7 +119,7 @@ public class EmailService {
 
         return intent + " processed for " + matchingCandidates.size() + " record(s)";
     }
-
+    
     public void sendToShortlisted(List<Candidate> candidates) {
         for (Candidate c : candidates) {
             sendEmail(c.getEmail(), "Shortlisted", "Dear " + c.getName() + ", you are shortlisted.");
