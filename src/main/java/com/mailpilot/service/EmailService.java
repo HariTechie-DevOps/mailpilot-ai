@@ -1,5 +1,5 @@
 package com.mailpilot.service;
-
+import com.mailpilot.model.IncomingEmail;
 import com.mailpilot.model.Candidate;
 import com.mailpilot.model.EmailLog;
 import com.mailpilot.repository.CandidateRepository;
