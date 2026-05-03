@@ -95,13 +95,21 @@ public class EmailService {
                 sendEmail(email.getFrom(), "Interview Confirmed", "Thank you for confirming.");
                 return "Confirmed processed for " + matchingCandidates.size() + " record(s)";
 
+            // inside processIncomingEmail method
             case "RESCHEDULE":
                 matchingCandidates.forEach(c -> {
                     c.setStatus("RESCHEDULE_REQUESTED");
-                    candidateRepository.save(c);
-                });
-                sendEmail(email.getFrom(), "Reschedule Request Received", "We will contact you shortly.");
-                return "Reschedule request processed for " + matchingCandidates.size() + " record(s)";
+        
+           // Logic: Simple extraction - if the body contains a day, let's "note" it
+            if (email.getBody().toLowerCase().contains("friday")) {
+                c.setInterviewTime("Friday (Pending Approval)");
+            } else if (email.getBody().toLowerCase().contains("monday")) {
+                c.setInterviewTime("Monday (Pending Approval)");
+            }
+
+            candidateRepository.save(c);
+         });
+        return "Reschedule request logged for " + matchingCandidates.size() + " record(s)";
 
             default:
                 return "Unknown intent";
