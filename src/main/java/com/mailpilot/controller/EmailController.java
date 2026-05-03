@@ -64,17 +64,22 @@ public class EmailController {
 
     @GetMapping("/report")
     public String getRecruitmentReport() {
+        long total = candidateRepository.count();
         long confirmed = candidateRepository.countByStatus("CONFIRMED");
-        long shortlisted = candidateRepository.countByStatus("SHORTLISTED");
-        long rescheduled = candidateRepository.countByStatus("RESCHEDULE_REQUESTED");
+    
+        // Logic: Calculate the success rate
+        double conversionRate = (total > 0) ? ((double) confirmed / total) * 100 : 0;
 
         return String.format(
-            "--- Recruitment Report ---\n" +
+            "--- MailPilot Analytics ---\n" +
             "Confirmed: %d\n" +
             "Shortlisted: %d\n" +
-            "Reschedule Requested: %d\n" +
-            "Total Candidates: %d",
-            confirmed, shortlisted, rescheduled, candidateRepository.count()
+            "Success Rate: %.2f%%\n" +
+            "Total Pipeline: %d",
+            confirmed, 
+            candidateRepository.countByStatus("SHORTLISTED"), 
+            conversionRate, 
+            total
         );
     }
     
