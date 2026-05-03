@@ -25,6 +25,6 @@ public class Candidate {
     public void setEmail(String email) { this.email = email; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-    public LocalDateTime getInterviewTime() { return interviewTime; }
-    public void setInterviewTime(LocalDateTime interviewTime) { this.interviewTime = interviewTime; }
+    public Strinng getInterviewTime() { return interviewTime; }
+    public void setInterviewTime(String interviewTime) { this.interviewTime = interviewTime; }
 }
