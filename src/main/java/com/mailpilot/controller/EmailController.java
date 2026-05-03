@@ -61,18 +61,24 @@ public class EmailController {
     public String getRecruitmentReport() {
         long total = candidateRepository.count();
         long confirmed = candidateRepository.countByStatus("CONFIRMED");
+        long shortlisted = candidateRepository.countByStatus("SHORTLISTED");
+        long rescheduled = candidateRepository.countByStatus("RESCHEDULE_REQUESTED");
         long withdrawn = candidateRepository.countByStatus("WITHDRAWN");
-    
-        // Logic: Calculate 'Dropout Rate'
+
+        double successRate = (total > 0) ? ((double) confirmed / total) * 100 : 0;
         double dropoutRate = (total > 0) ? ((double) withdrawn / total) * 100 : 0;
 
         return String.format(
-            "--- MailPilot Analytics Dashboard ---\n" +
-            "Confirmed: %d\n" +
-            "Withdrawn: %d\n" +
+            "--- MailPilot Full Pipeline Report ---\n" +
+            "Confirmed:   %d\n" +
+            "Shortlisted: %d\n" +
+            "Rescheduled: %d\n" +
+            "Withdrawn:   %d\n" +
+            "-------------------------------------\n" +
+            "Success Rate: %.2f%%\n" +
             "Dropout Rate: %.2f%%\n" +
-            "Total Pipeline: %d",
-            confirmed, withdrawn, dropoutRate, total
+            "Total Candidates: %d",
+            confirmed, shortlisted, rescheduled, withdrawn, successRate, dropoutRate, total
         );
     }
 
