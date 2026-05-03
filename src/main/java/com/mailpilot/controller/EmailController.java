@@ -57,6 +57,11 @@ public class EmailController {
         return "Process started for " + all.size() + " candidates.";
     }
 
+    @PostMapping("/incoming")
+    public String receiveEmail(@RequestBody IncomingEmail email) {
+        return emailService.processIncomingEmail(email);
+    }
+
     @PostMapping("/send-interview/{id}")
     public String sendInterviewEmail(@PathVariable Long id) {
 
