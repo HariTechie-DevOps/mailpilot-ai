@@ -24,9 +24,14 @@ public class EmailService {
     @Autowired
     private CandidateRepository candidateRepository;
 
+    /**
+     * Logical Step: Convert LocalDateTime to String to match the updated 
+     * Candidate model and database schema.
+     */
     public void scheduleInterview(List<Candidate> candidates, LocalDateTime time) {
         for (Candidate c : candidates) {
-            c.setInterviewTime(time); // Fixed: Passing LocalDateTime directly
+            // Fix: Convert LocalDateTime to String
+            c.setInterviewTime(time.toString()); 
             c.setStatus("INTERVIEW_SCHEDULED");
             candidateRepository.save(c);
 
@@ -55,12 +60,13 @@ public class EmailService {
         if (text == null) return "UNKNOWN";
         String lowerText = text.toLowerCase();
 
-        // The logic we just added:
+        // Check for Rejection/Withdrawal
         if (lowerText.contains("withdraw") || lowerText.contains("not interested") || lowerText.contains("decline")) {
             return "REJECT";
         }
 
-        boolean isNegative = lowerText.contains("not") || lowerText.contains("can't") || lowerText.contains("unable");
+        boolean isNegative = lowerText.contains("not") || lowerText.contains("can't") || 
+                            lowerText.contains("cannot") || lowerText.contains("unable");
 
         if (lowerText.contains("reschedule") || lowerText.contains("change")) {
             return "RESCHEDULE";
@@ -90,17 +96,16 @@ public class EmailService {
             } else if (intent.equals("RESCHEDULE")) {
                 c.setStatus("RESCHEDULE_REQUESTED");
             
-                // LOGIC: Entity Extraction for Days
+                // LOGIC: Entity Extraction for Days of the week
                 String[] days = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
                 for (String day : days) {
                     if (body.contains(day)) {
-                        // We capitalize the first letter for the database
                         String formattedDay = day.substring(0, 1).toUpperCase() + day.substring(1);
                         c.setInterviewTime(formattedDay + " (Pending Approval)");
-                        break; // Stop once we find the first day mentioned
+                        break; 
                     }
                 }
-             } else if (intent.equals("REJECT")) {
+            } else if (intent.equals("REJECT")) {
                 c.setStatus("WITHDRAWN");
             }
             candidateRepository.save(c);
