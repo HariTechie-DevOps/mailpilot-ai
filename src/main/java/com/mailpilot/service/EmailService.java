@@ -51,16 +51,25 @@ public class EmailService {
     }
 
     public String detectIntent(String text) {
+        if (text == null) return "UNKNOWN";
+        String lowerText = text.toLowerCase();
 
-        text = text.toLowerCase();
+        // Logic: Check for negative words first to avoid false positives
+        boolean isNegative = lowerText.contains("not") || 
+                            lowerText.contains("can't") || 
+                            lowerText.contains("cannot") || 
+                            lowerText.contains("unable");
 
-        if (text.contains("reschedule")) {
+        if (lowerText.contains("reschedule") || lowerText.contains("change")) {
             return "RESCHEDULE";
-        } else if (text.contains("confirm") || text.contains("yes")) {
+        } 
+    
+        // Logic: Only confirm if keywords are present AND it's not a negative sentence
+        if ((lowerText.contains("confirm") || lowerText.contains("yes")) && !isNegative) {
             return "CONFIRM";
-        } else {
-            return "UNKNOWN";
         }
+
+        return "UNKNOWN";
     }
 
    public String processIncomingEmail(IncomingEmail email) {
