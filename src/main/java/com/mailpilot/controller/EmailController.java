@@ -1,4 +1,5 @@
 package com.mailpilot.controller;
+
 import com.mailpilot.model.IncomingEmail;
 import com.mailpilot.model.Candidate;
 import com.mailpilot.repository.CandidateRepository;
@@ -22,25 +23,19 @@ public class EmailController {
 
     @PostMapping("/send-shortlisted")
     public String sendToShortlisted() {
-
-        List<Candidate> shortlisted =
-                candidateRepository.findByStatus("SHORTLISTED");
-
-        // Line 29 in EmailController.java
+        List<Candidate> shortlisted = candidateRepository.findByStatus("SHORTLISTED");
         emailService.sendToShortlisted(shortlisted);
-
         return "Emails sent to " + shortlisted.size() + " shortlisted candidates.";
     }
 
     @PostMapping("/schedule")
     public String scheduleInterview(@RequestParam String time) {
-        // Logical Check: Ensure the string has a 'T' (e.g., 2026-05-15T10:30:00)
         try {
             LocalDateTime interviewTime = LocalDateTime.parse(time);
             List<Candidate> shortlisted = candidateRepository.findByStatus("SHORTLISTED");
-        
+            
             if (shortlisted.isEmpty()) {
-                return "No candidates found with status 'SHORTLISTED'. Please update your database.";
+                return "No candidates found with status 'SHORTLISTED'.";
             }
 
             emailService.scheduleInterview(shortlisted, interviewTime);
@@ -69,7 +64,6 @@ public class EmailController {
         long shortlisted = candidateRepository.countByStatus("SHORTLISTED");
         long rescheduled = candidateRepository.countByStatus("RESCHEDULE_REQUESTED");
 
-        // Logic: Calculate the success rate percentage
         double successRate = (total > 0) ? ((double) confirmed / total) * 100 : 0;
 
         return String.format(
@@ -83,11 +77,9 @@ public class EmailController {
             confirmed, shortlisted, rescheduled, successRate, total
         );
     }
-}
-    
+
     @PostMapping("/send-interview/{id}")
     public String sendInterviewEmail(@PathVariable Long id) {
-
         Optional<Candidate> candidateOpt = candidateRepository.findById(id);
 
         if (candidateOpt.isEmpty()) {
@@ -95,10 +87,8 @@ public class EmailController {
         }
 
         Candidate candidate = candidateOpt.get();
-
         String subject = "Interview Invitation";
-        String body = "Dear " + candidate.getName() +
-                ",\n\nYou are invited for an interview.\n\nRegards,\nHR";
+        String body = "Dear " + candidate.getName() + ",\n\nYou are invited for an interview.";
 
         return emailService.sendEmail(candidate.getEmail(), subject, body);
     }
