@@ -85,15 +85,26 @@ public class EmailService {
         if (intent.equals("UNKNOWN")) return "Unknown intent";
 
         matchingCandidates.forEach(c -> {
-        if (intent.equals("CONFIRM")) {
-            c.setStatus("CONFIRMED");
-        } else if (intent.equals("RESCHEDULE")) {
-            c.setStatus("RESCHEDULE_REQUESTED");
-        } else if (intent.equals("REJECT")) {
-            c.setStatus("WITHDRAWN"); // Moving to a terminal state
-        }
-        candidateRepository.save(c);
-    });
+            if (intent.equals("CONFIRM")) {
+                c.setStatus("CONFIRMED");
+            } else if (intent.equals("RESCHEDULE")) {
+                c.setStatus("RESCHEDULE_REQUESTED");
+            
+                // LOGIC: Entity Extraction for Days
+                String[] days = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
+                for (String day : days) {
+                    if (body.contains(day)) {
+                        // We capitalize the first letter for the database
+                        String formattedDay = day.substring(0, 1).toUpperCase() + day.substring(1);
+                        c.setInterviewTime(formattedDay + " (Pending Approval)");
+                        break; // Stop once we find the first day mentioned
+                    }
+                }
+             } else if (intent.equals("REJECT")) {
+                c.setStatus("WITHDRAWN");
+            }
+            candidateRepository.save(c);
+        });
 
         return intent + " processed for " + matchingCandidates.size() + " record(s)";
     }
