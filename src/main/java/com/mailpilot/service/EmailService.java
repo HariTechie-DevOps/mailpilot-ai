@@ -55,16 +55,12 @@ public class EmailService {
         if (text == null) return "UNKNOWN";
         String lowerText = text.toLowerCase();
 
-        // Logic: New Rejection Keywords
-        boolean isRejection = lowerText.contains("not interested") || 
-                             lowerText.contains("withdraw") || 
-                             lowerText.contains("another offer") || 
-                             lowerText.contains("decline");
+        // The logic we just added:
+        if (lowerText.contains("withdraw") || lowerText.contains("not interested") || lowerText.contains("decline")) {
+            return "REJECT";
+        }
 
-        if (isRejection) return "REJECT";
-
-        boolean isNegative = lowerText.contains("not") || lowerText.contains("can't") || 
-                            lowerText.contains("cannot") || lowerText.contains("unable");
+        boolean isNegative = lowerText.contains("not") || lowerText.contains("can't") || lowerText.contains("unable");
 
         if (lowerText.contains("reschedule") || lowerText.contains("change")) {
             return "RESCHEDULE";
