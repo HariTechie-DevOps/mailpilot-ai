@@ -55,13 +55,21 @@ public class EmailService {
         if (text == null) return "UNKNOWN";
         String lowerText = text.toLowerCase();
 
+        // Logic: New Rejection Keywords
+        boolean isRejection = lowerText.contains("not interested") || 
+                             lowerText.contains("withdraw") || 
+                             lowerText.contains("another offer") || 
+                             lowerText.contains("decline");
+
+        if (isRejection) return "REJECT";
+
         boolean isNegative = lowerText.contains("not") || lowerText.contains("can't") || 
                             lowerText.contains("cannot") || lowerText.contains("unable");
 
         if (lowerText.contains("reschedule") || lowerText.contains("change")) {
             return "RESCHEDULE";
         } 
-        
+    
         if ((lowerText.contains("confirm") || lowerText.contains("yes")) && !isNegative) {
             return "CONFIRM";
         }
