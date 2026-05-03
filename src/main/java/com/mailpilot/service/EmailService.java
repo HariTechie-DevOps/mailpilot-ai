@@ -89,17 +89,15 @@ public class EmailService {
         if (intent.equals("UNKNOWN")) return "Unknown intent";
 
         matchingCandidates.forEach(c -> {
-            if (intent.equals("CONFIRM")) {
-                c.setStatus("CONFIRMED");
-            } else if (intent.equals("RESCHEDULE")) {
-                c.setStatus("RESCHEDULE_REQUESTED");
-                
-                // Logic: Since the DB field is LocalDateTime, we set a placeholder 
-                // date far in the future or just leave it as is. 
-                // For now, we will just update the status to avoid the Type Error.
-            }
-            candidateRepository.save(c);
-        });
+        if (intent.equals("CONFIRM")) {
+            c.setStatus("CONFIRMED");
+        } else if (intent.equals("RESCHEDULE")) {
+            c.setStatus("RESCHEDULE_REQUESTED");
+        } else if (intent.equals("REJECT")) {
+            c.setStatus("WITHDRAWN"); // Moving to a terminal state
+        }
+        candidateRepository.save(c);
+    });
 
         return intent + " processed for " + matchingCandidates.size() + " record(s)";
     }
