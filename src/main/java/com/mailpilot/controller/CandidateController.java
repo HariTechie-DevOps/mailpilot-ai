@@ -25,6 +25,11 @@ public class CandidateController {
         return candidateRepository.findAll();
     }
 
+    @GetMapping("/{id}")
+    public Candidate getCandidate(@PathVariable Long id) {
+        return candidateRepository.findById(id).orElse(null);
+    }
+    
     // DELETE: Remove a candidate by ID
     @DeleteMapping("/{id}")
     public String deleteCandidate(@PathVariable Long id) {
