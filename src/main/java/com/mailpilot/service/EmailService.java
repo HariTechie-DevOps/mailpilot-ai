@@ -1,4 +1,5 @@
 package com.mailpilot.service;
+
 import com.mailpilot.model.IncomingEmail;
 import com.mailpilot.model.Candidate;
 import com.mailpilot.model.EmailLog;
@@ -25,7 +26,7 @@ public class EmailService {
 
     public void scheduleInterview(List<Candidate> candidates, LocalDateTime time) {
         for (Candidate c : candidates) {
-            c.setInterviewTime(time);
+            c.setInterviewTime(time.toString()); // Convert to string if column is VARCHAR
             c.setStatus("INTERVIEW_SCHEDULED");
             candidateRepository.save(c);
 
@@ -54,17 +55,13 @@ public class EmailService {
         if (text == null) return "UNKNOWN";
         String lowerText = text.toLowerCase();
 
-        // Logic: Check for negative words first to avoid false positives
-        boolean isNegative = lowerText.contains("not") || 
-                            lowerText.contains("can't") || 
-                            lowerText.contains("cannot") || 
-                            lowerText.contains("unable");
+        boolean isNegative = lowerText.contains("not") || lowerText.contains("can't") || 
+                            lowerText.contains("cannot") || lowerText.contains("unable");
 
         if (lowerText.contains("reschedule") || lowerText.contains("change")) {
             return "RESCHEDULE";
         } 
-    
-        // Logic: Only confirm if keywords are present AND it's not a negative sentence
+        
         if ((lowerText.contains("confirm") || lowerText.contains("yes")) && !isNegative) {
             return "CONFIRM";
         }
@@ -72,7 +69,7 @@ public class EmailService {
         return "UNKNOWN";
     }
 
-   public String processIncomingEmail(IncomingEmail email) {
+    public String processIncomingEmail(IncomingEmail email) {
         String intent = detectIntent(email.getBody());
         String body = email.getBody().toLowerCase();
 
@@ -89,7 +86,6 @@ public class EmailService {
             } else if (intent.equals("RESCHEDULE")) {
                 c.setStatus("RESCHEDULE_REQUESTED");
                 
-                // Logic: Extract the requested day from the text
                 if (body.contains("monday")) c.setInterviewTime("Monday (Pending)");
                 else if (body.contains("tuesday")) c.setInterviewTime("Tuesday (Pending)");
                 else if (body.contains("wednesday")) c.setInterviewTime("Wednesday (Pending)");
@@ -101,13 +97,18 @@ public class EmailService {
 
         return intent + " processed for " + matchingCandidates.size() + " record(s)";
     }
-}
-    
+
     public void sendToShortlisted(List<Candidate> candidates) {
         for (Candidate c : candidates) {
             String subject = "Congratulations! You are Shortlisted";
-            String body = "Dear " + c.getName() + ",\n\nWe are pleased to inform you that you have been shortlisted for the next round.";
+            String body = "Dear " + c.getName() + ",\n\nWe are pleased to inform you that you have been shortlisted.";
             sendEmail(c.getEmail(), subject, body);
+        }
+    }
+
+    public void sendBulkEmail(List<Candidate> candidates) {
+        for (Candidate c : candidates) {
+            sendEmail(c.getEmail(), "Update", "Hello " + c.getName());
         }
     }
 
@@ -119,9 +120,5 @@ public class EmailService {
         log.setStatus(status);
         log.setTimestamp(LocalDateTime.now());
         emailLogRepository.save(log);
-    }
-    
-    public void sendBulkEmail(List<Candidate> candidates) {
-        for (Candidate c : candidates) sendEmail(c.getEmail(), "Update", "Hello " + c.getName());
     }
 }
