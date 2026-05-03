@@ -66,22 +66,24 @@ public class EmailController {
     public String getRecruitmentReport() {
         long total = candidateRepository.count();
         long confirmed = candidateRepository.countByStatus("CONFIRMED");
-    
-        // Logic: Calculate the success rate
-        double conversionRate = (total > 0) ? ((double) confirmed / total) * 100 : 0;
+        long shortlisted = candidateRepository.countByStatus("SHORTLISTED");
+        long rescheduled = candidateRepository.countByStatus("RESCHEDULE_REQUESTED");
+
+        // Logic: Calculate the success rate percentage
+        double successRate = (total > 0) ? ((double) confirmed / total) * 100 : 0;
 
         return String.format(
-            "--- MailPilot Analytics ---\n" +
+            "--- MailPilot Analytics Dashboard ---\n" +
             "Confirmed: %d\n" +
             "Shortlisted: %d\n" +
+            "Reschedule Requested: %d\n" +
+            "-------------------------------------\n" +
             "Success Rate: %.2f%%\n" +
             "Total Pipeline: %d",
-            confirmed, 
-            candidateRepository.countByStatus("SHORTLISTED"), 
-            conversionRate, 
-            total
+            confirmed, shortlisted, rescheduled, successRate, total
         );
     }
+}
     
     @PostMapping("/send-interview/{id}")
     public String sendInterviewEmail(@PathVariable Long id) {
