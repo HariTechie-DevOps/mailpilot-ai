@@ -50,6 +50,19 @@ public class EmailService {
         }
     }
 
+    public String detectIntent(String text) {
+
+        text = text.toLowerCase();
+
+        if (text.contains("reschedule")) {
+            return "RESCHEDULE";
+        } else if (text.contains("confirm") || text.contains("yes")) {
+            return "CONFIRM";
+        } else {
+            return "UNKNOWN";
+        }
+    }
+    
     public void sendToShortlisted(List<Candidate> candidates) {
         for (Candidate c : candidates) {
             String subject = "Congratulations! You are Shortlisted";
