@@ -74,48 +74,34 @@ public class EmailService {
 
    public String processIncomingEmail(IncomingEmail email) {
         String intent = detectIntent(email.getBody());
+        String body = email.getBody().toLowerCase();
 
-        // 1. Logic: Collect ALL records that match this email
         List<Candidate> matchingCandidates = candidateRepository.findAll().stream()
                 .filter(c -> c.getEmail().equalsIgnoreCase(email.getFrom()))
                 .toList();
 
-        // 2. Logic: If no records exist, stop here
-        if (matchingCandidates.isEmpty()) {
-            return "Candidate not found";
-        }
+        if (matchingCandidates.isEmpty()) return "Candidate not found";
+        if (intent.equals("UNKNOWN")) return "Unknown intent";
 
-        // 3. Logic: Update EVERY matching record found
-        switch (intent) {
-            case "CONFIRM":
-                matchingCandidates.forEach(c -> {
-                    c.setStatus("CONFIRMED");
-                    candidateRepository.save(c);
-                });
-                sendEmail(email.getFrom(), "Interview Confirmed", "Thank you for confirming.");
-                return "Confirmed processed for " + matchingCandidates.size() + " record(s)";
-
-            // inside processIncomingEmail method
-            case "RESCHEDULE":
-                matchingCandidates.forEach(c -> {
-                    c.setStatus("RESCHEDULE_REQUESTED");
-        
-           // Logic: Simple extraction - if the body contains a day, let's "note" it
-            if (email.getBody().toLowerCase().contains("friday")) {
-                c.setInterviewTime("Friday (Pending Approval)");
-            } else if (email.getBody().toLowerCase().contains("monday")) {
-                c.setInterviewTime("Monday (Pending Approval)");
+        matchingCandidates.forEach(c -> {
+            if (intent.equals("CONFIRM")) {
+                c.setStatus("CONFIRMED");
+            } else if (intent.equals("RESCHEDULE")) {
+                c.setStatus("RESCHEDULE_REQUESTED");
+                
+                // Logic: Extract the requested day from the text
+                if (body.contains("monday")) c.setInterviewTime("Monday (Pending)");
+                else if (body.contains("tuesday")) c.setInterviewTime("Tuesday (Pending)");
+                else if (body.contains("wednesday")) c.setInterviewTime("Wednesday (Pending)");
+                else if (body.contains("thursday")) c.setInterviewTime("Thursday (Pending)");
+                else if (body.contains("friday")) c.setInterviewTime("Friday (Pending)");
             }
-
             candidateRepository.save(c);
-         });
-        return "Reschedule request logged for " + matchingCandidates.size() + " record(s)";
+        });
 
-            default:
-                return "Unknown intent";
-        }
+        return intent + " processed for " + matchingCandidates.size() + " record(s)";
     }
-
+}
     
     public void sendToShortlisted(List<Candidate> candidates) {
         for (Candidate c : candidates) {
