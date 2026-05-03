@@ -12,7 +12,9 @@ public class Candidate {
     private String name;
     private String email;
     private String status;
-    private LocalDateTime interviewTime;
+    private String interviewTime;
+    
+    //private LocalDateTime interviewTime;
 
     // Getters & Setters
     public Long getId() { return id; }
