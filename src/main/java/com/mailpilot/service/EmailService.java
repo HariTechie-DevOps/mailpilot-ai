@@ -60,21 +60,20 @@ public class EmailService {
         if (text == null) return "UNKNOWN";
         String lowerText = text.toLowerCase();
 
-        // Check for Rejection/Withdrawal
-        if (lowerText.contains("withdraw") || lowerText.contains("not interested") || lowerText.contains("decline")) {
-            return "REJECT";
+        // 1. Check for Rejection
+        if (lowerText.contains("withdraw") || lowerText.contains("not interested")) return "REJECT";
+
+        // 2. NEW LOGIC: Check if they just mentioned a day (Implicit Reschedule)
+        String[] days = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
+        for (String day : days) {
+            if (lowerText.contains(day)) return "RESCHEDULE";
         }
 
-        boolean isNegative = lowerText.contains("not") || lowerText.contains("can't") || 
-                            lowerText.contains("cannot") || lowerText.contains("unable");
+        // 3. Check for Keywords
+        if (lowerText.contains("reschedule") || lowerText.contains("change")) return "RESCHEDULE";
 
-        if (lowerText.contains("reschedule") || lowerText.contains("change")) {
-            return "RESCHEDULE";
-        } 
-    
-        if ((lowerText.contains("confirm") || lowerText.contains("yes")) && !isNegative) {
-            return "CONFIRM";
-        }
+        // 4. Check for Confirmation
+        if (lowerText.contains("confirm") || lowerText.contains("yes")) return "CONFIRM";
 
         return "UNKNOWN";
     }
