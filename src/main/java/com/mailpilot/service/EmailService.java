@@ -62,6 +62,49 @@ public class EmailService {
             return "UNKNOWN";
         }
     }
+
+    public String processIncomingEmail(IncomingEmail email) {
+
+        String intent = detectIntent(email.getBody());
+
+        Candidate candidate =
+                candidateRepository.findAll()
+                        .stream()
+                        .filter(c -> c.getEmail().equals(email.getFrom()))
+                        .findFirst()
+                        .orElse(null);
+
+        if (candidate == null) {
+            return "Candidate not found";
+        }
+
+        switch (intent) {
+
+            case "CONFIRM":
+                candidate.setStatus("CONFIRMED");
+                candidateRepository.save(candidate);
+
+                sendEmail(candidate.getEmail(),
+                        "Interview Confirmed",
+                        "Thank you for confirming.");
+
+                return "Confirmed processed";
+
+            case "RESCHEDULE":
+                candidate.setStatus("RESCHEDULE_REQUESTED");
+                candidateRepository.save(candidate);
+
+                sendEmail(candidate.getEmail(),
+                        "Reschedule Request Received",
+                        "We will get back with a new time.");
+
+                return "Reschedule request processed";
+
+            default:
+                return "Unknown intent";
+        }
+    }
+
     
     public void sendToShortlisted(List<Candidate> candidates) {
         for (Candidate c : candidates) {
