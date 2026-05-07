@@ -145,6 +145,14 @@ public class EmailService {
         return "UNKNOWN";
     }
 
+    public LocalDateTime autoSchedule() {
+
+        return LocalDateTime.now()
+                .plusDays(1)
+                .withHour(10)
+                .withMinute(0);
+    }
+
     public void sendBulkEmail(List<Candidate> candidates) {
         for (Candidate c : candidates) {
             sendEmail(c.getEmail(), "Update", "Hello " + c.getName());
