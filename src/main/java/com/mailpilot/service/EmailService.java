@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmailService {
@@ -171,97 +172,105 @@ public class EmailService {
     // PROCESS INCOMING EMAIL
     // =========================================================
 
-    public String processIncomingEmail(IncomingEmail email) {
+   public String processIncomingEmail(IncomingEmail email) {
 
-        String intent = detectIntent(email.getBody());
+    String intent = detectIntent(email.getBody());
 
-        List<Candidate> matchingCandidates =
-                candidateRepository.findByEmailIgnoreCase(email.getFrom());
+    Optional<Candidate> optionalCandidate =
+            candidateRepository.findByEmailIgnoreCase(email.getFrom());
 
-        if (matchingCandidates.isEmpty()) {
-            return "Candidate not found";
-        }
+    // =========================================================
+    // VALIDATION
+    // =========================================================
 
-        if (intent.equals("UNKNOWN")) {
-            return "Unknown intent";
-        }
-
-        for (Candidate candidate : matchingCandidates) {
-
-            // =========================================
-            // PROTECTION LOGIC
-            // =========================================
-
-            if ("WITHDRAWN".equalsIgnoreCase(
-                    candidate.getStatus())) {
-
-                System.out.println(
-                        "Skipping withdrawn candidate: "
-                                + candidate.getName()
-                );
-
-                continue;
-            }
-
-            // =========================================
-            // CONFIRM
-            // =========================================
-
-            if (intent.equals("CONFIRM")) {
-
-                candidate.setStatus("CONFIRMED");
-
-                candidateRepository.save(candidate);
-
-                sendEmail(
-                        candidate.getEmail(),
-                        "Interview Confirmed",
-                        "Thank you for confirming your interview."
-                );
-            }
-
-            // =========================================
-            // RESCHEDULE
-            // =========================================
-
-            else if (intent.equals("RESCHEDULE")) {
-
-                LocalDateTime newTime = autoSchedule();
-
-                candidate.setInterviewTime(newTime);
-
-                candidate.setStatus("RESCHEDULED");
-
-                candidateRepository.save(candidate);
-
-                sendEmail(
-                        candidate.getEmail(),
-                        "New Interview Schedule",
-                        "Your new interview time is: "
-                                + newTime
-                );
-            }
-
-            // =========================================
-            // REJECT
-            // =========================================
-
-            else if (intent.equals("REJECT")) {
-
-                candidate.setStatus("WITHDRAWN");
-
-                candidateRepository.save(candidate);
-
-                sendEmail(
-                        candidate.getEmail(),
-                        "Application Withdrawn",
-                        "Your application has been marked as withdrawn."
-                );
-            }
-        }
-
-        return intent + " processed successfully";
+    if (optionalCandidate.isEmpty()) {
+        return "Candidate not found";
     }
+
+    if (intent.equals("UNKNOWN")) {
+        return "Unknown intent";
+    }
+
+    Candidate candidate = optionalCandidate.get();
+
+    // =========================================================
+    // PROTECTION LOGIC
+    // =========================================================
+
+    if ("WITHDRAWN".equalsIgnoreCase(candidate.getStatus())) {
+
+        System.out.println(
+                "Skipping withdrawn candidate: "
+                        + candidate.getName()
+        );
+
+        return "Candidate already withdrawn";
+    }
+
+    // =========================================================
+    // CONFIRM
+    // =========================================================
+
+    if (intent.equals("CONFIRM")) {
+
+        candidate.setStatus("CONFIRMED");
+
+        candidateRepository.save(candidate);
+
+        sendEmail(
+                candidate.getEmail(),
+                "Interview Confirmed",
+                "Thank you for confirming your interview."
+        );
+
+        return "Confirmation processed";
+    }
+
+    // =========================================================
+    // RESCHEDULE
+    // =========================================================
+
+    else if (intent.equals("RESCHEDULE")) {
+
+        LocalDateTime newTime = autoSchedule();
+
+        candidate.setInterviewTime(newTime);
+
+        candidate.setStatus("RESCHEDULED");
+
+        candidateRepository.save(candidate);
+
+        sendEmail(
+                candidate.getEmail(),
+                "New Interview Schedule",
+                "Your new interview time is: "
+                        + newTime
+        );
+
+        return "Reschedule processed";
+    }
+
+    // =========================================================
+    // REJECT
+    // =========================================================
+
+    else if (intent.equals("REJECT")) {
+
+        candidate.setStatus("WITHDRAWN");
+
+        candidateRepository.save(candidate);
+
+        sendEmail(
+                candidate.getEmail(),
+                "Application Withdrawn",
+                "Your application has been marked as withdrawn."
+        );
+
+        return "Withdrawal processed";
+    }
+
+    return "Processing completed";
+}
 
     // =========================================================
     // SAVE EMAIL LOG
