@@ -12,10 +12,10 @@ public class Candidate {
     private String name;
     private String email;
     private String status;
-    private String interviewTime;
-    private String requestedDay;
     
-    //private LocalDateTime interviewTime;
+    // Updated to LocalDateTime for real timestamp management
+    private LocalDateTime interviewTime;
+    private String requestedDay;
 
     // Getters & Setters
     public Long getId() { return id; }
@@ -26,12 +26,8 @@ public class Candidate {
     public void setEmail(String email) { this.email = email; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-    public String getInterviewTime() { return interviewTime; }
-    public void setInterviewTime(String interviewTime) { this.interviewTime = interviewTime; }
-    public String getRequestedDay() {
-        return requestedDay;
-    }
-    public void setRequestedDay(String requestedDay) {
-        this.requestedDay = requestedDay;
-    }
+    public LocalDateTime getInterviewTime() { return interviewTime; }
+    public void setInterviewTime(LocalDateTime interviewTime) { this.interviewTime = interviewTime; }
+    public String getRequestedDay() { return requestedDay; }
+    public void setRequestedDay(String requestedDay) { this.requestedDay = requestedDay; }
 }
