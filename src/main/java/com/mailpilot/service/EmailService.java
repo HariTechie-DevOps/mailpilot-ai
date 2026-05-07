@@ -126,6 +126,25 @@ public class EmailService {
         }
     }
 
+
+    public String detectIntentAI(String text) {
+
+        String prompt =
+                "Classify intent: CONFIRM, RESCHEDULE, UNKNOWN\nText: " + text;
+
+        // OpenAI API logic later
+
+        if (text.toLowerCase().contains("confirm")) {
+            return "CONFIRM";
+        }
+
+        if (text.toLowerCase().contains("reschedule")) {
+            return "RESCHEDULE";
+        }
+
+        return "UNKNOWN";
+    }
+
     public void sendBulkEmail(List<Candidate> candidates) {
         for (Candidate c : candidates) {
             sendEmail(c.getEmail(), "Update", "Hello " + c.getName());
