@@ -35,7 +35,6 @@ public class GmailReaderService {
     GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
             GsonFactory.getDefaultInstance(), new InputStreamReader(in));
 
-    // Logic: Scopes remain the same (GMAIL_MODIFY)
     List<String> scopes = Collections.singletonList(GmailScopes.GMAIL_MODIFY);
 
     GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
@@ -45,15 +44,29 @@ public class GmailReaderService {
             .setAccessType("offline")
             .build();
 
-    // Logic: Use LocalServerReceiver even with Web ID for the "Callback" capture
-    // This is a common real-world trick for headless servers (AWS) using an SSH tunnel.
-    LocalServerReceiver receiver = new LocalServerReceiver.Builder()
-            .setPort(8888) // Ensure this port is open/tunneled
-            .build();
+    Credential credential = flow.loadCredential("user");
 
-    // AuthorizationCodeInstalledApp works with Web Credentials as long as the 
-    // Redirect URI in Google Console includes http://localhost:8888/Callback
-    Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+    if (credential == null) {
+        // Step 1: Use a standard redirect
+        String redirectUri = "http://localhost:8888/Callback";
+        String url = flow.newAuthorizationUrl().setRedirectUri(redirectUri).build();
+
+        // Step 2: Print instructions to the Ubuntu Console
+        System.out.println("\n--- ACTION REQUIRED ---");
+        System.out.println("1. Open this URL: " + url);
+        System.out.println("2. After 'Allowing', copy the 'code' from the browser URL bar.");
+        System.out.print("3. Paste the code here and press ENTER: ");
+
+        // Step 3: Wait for you to paste the code
+        java.util.Scanner scanner = new java.util.Scanner(System.in);
+        String code = scanner.nextLine();
+
+        GoogleTokenResponse response = flow.newTokenRequest(code)
+                .setRedirectUri(redirectUri)
+                .execute();
+
+        credential = flow.createAndStoreCredential(response, "user");
+    }
 
     return new Gmail.Builder(GoogleNetHttpTransport.newTrustedTransport(), 
             GsonFactory.getDefaultInstance(), credential)
