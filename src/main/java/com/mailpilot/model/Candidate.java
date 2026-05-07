@@ -13,6 +13,7 @@ public class Candidate {
     private String email;
     private String status;
     private String interviewTime;
+    private String requestedDay;
     
     //private LocalDateTime interviewTime;
 
@@ -27,4 +28,10 @@ public class Candidate {
     public void setStatus(String status) { this.status = status; }
     public String getInterviewTime() { return interviewTime; }
     public void setInterviewTime(String interviewTime) { this.interviewTime = interviewTime; }
+    public String getRequestedDay() {
+        return requestedDay;
+    }
+    public void setRequestedDay(String requestedDay) {
+        this.requestedDay = requestedDay;
+    }
 }
