@@ -121,38 +121,47 @@ public class EmailService {
 
     public String detectIntent(String text) {
 
-        if (text == null) {
-            return "UNKNOWN";
-        }
-
-        text = text.toLowerCase();
-
-        // Reject / Withdraw
-
-        if (text.contains("withdraw")
-                || text.contains("not interested")) {
-
-            return "REJECT";
-        }
-
-        // Reschedule
-
-        if (text.contains("reschedule")
-                || text.contains("change")) {
-
-            return "RESCHEDULE";
-        }
-
-        // Confirm
-
-        if (text.contains("confirm")
-                || text.contains("yes")) {
-
-            return "CONFIRM";
-        }
-
+    if (text == null) {
         return "UNKNOWN";
     }
+
+    text = text.toLowerCase();
+
+    // =====================================================
+    // REJECT / WITHDRAW
+    // =====================================================
+
+    if (text.contains("withdraw")
+            || text.contains("not interested")
+            || text.contains("cancel")) {
+
+        return "REJECT";
+    }
+
+    // =====================================================
+    // RESCHEDULE
+    // =====================================================
+
+    if (text.contains("reschedule")
+            || text.contains("change")
+            || text.contains("another time")) {
+
+        return "RESCHEDULE";
+    }
+
+    // =====================================================
+    // CONFIRM
+    // =====================================================
+
+    if (text.contains("confirm")
+            || text.contains("yes")
+            || text.contains("okay")) {
+
+        return "CONFIRM";
+    }
+
+    return "UNKNOWN";
+}
 
     // =========================================================
     // AUTO SCHEDULE
