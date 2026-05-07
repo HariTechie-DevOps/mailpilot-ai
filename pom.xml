@@ -8,7 +8,7 @@
     <artifactId>mailpilot</artifactId>
     <version>1.0</version>
     <name>mailpilot</name>
-    <description>MailPilot Email Service</description>
+    <description>MailPilot Email Service with Google API Integration</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -22,50 +22,86 @@
     </properties>
 
     <dependencies>
-        <!-- Web Starter for REST APIs -->
+        <!-- ========================================================== -->
+        <!-- SPRING BOOT STARTERS                                       -->
+        <!-- ========================================================== -->
+        
+        <!-- Web Starter: Provides Tomcat and REST capabilities -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- JPA Starter for Database Management -->
+        <!-- JPA Starter: Handles Database connections and Hibernate -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- MySQL Driver -->
+        <!-- Mail Starter: Required for sending outgoing SMTP emails -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <!-- ========================================================== -->
+        <!-- DATABASE DRIVERS                                           -->
+        <!-- ========================================================== -->
+
+        <!-- MySQL Connector -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Mail Starter for JavaMailSender -->
+        <!-- ========================================================== -->
+        <!-- GOOGLE GMAIL API & OAUTH2                                  -->
+        <!-- ========================================================== -->
+
+        <!-- Core Google API Client -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>2.2.0</version>
         </dependency>
 
-         <dependency>
-             <groupId>com.google.api-client</groupId>
-             <artifactId>google-api-client</artifactId>
-             <version>2.2.0</version>
-         </dependency>
+        <!-- Gmail Specific Services -->
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-gmail</artifactId>
+            <version>v1-rev20220404-2.0.0</version>
+        </dependency>
 
-         <dependency>
-             <groupId>com.google.apis</groupId>
-             <artifactId>google-api-services-gmail</artifactId>
-             <version>v1-rev20220404-2.0.0</version>
-         </dependency>
+        <!-- OAuth2 Jetty: Opens the browser window for user login -->
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-jetty</artifactId>
+            <version>1.34.1</version>
+        </dependency>
 
-         <dependency>
-             <groupId>com.theokanning.openai-gpt3-java</groupId>
-             <artifactId>service</artifactId>
-             <version>0.18.2</version>
-         </dependency>
+        <!-- GSON: Required for parsing the credentials.json file -->
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-gson</artifactId>
+            <version>1.43.3</version>
+        </dependency>
 
-        <!-- Starter Test (Optional but recommended) -->
+        <!-- ========================================================== -->
+        <!-- EXTERNAL AI INTEGRATIONS                                  -->
+        <!-- ========================================================== -->
+
+        <!-- OpenAI GPT Library -->
+        <dependency>
+            <groupId>com.theokanning.openai-gpt3-java</groupId>
+            <artifactId>service</artifactId>
+            <version>0.18.2</version>
+        </dependency>
+
+        <!-- ========================================================== -->
+        <!-- TESTING UTILITIES                                          -->
+        <!-- ========================================================== -->
+        
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -74,12 +110,12 @@
     </dependencies>
 
     <build>
-    <plugins>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-        </plugin>
-    </plugins>
-</build>
-
+        <plugins>
+            <!-- Maven Plugin to package the project as an executable JAR -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
