@@ -2,15 +2,16 @@ package com.mailpilot.repository;
 
 import com.mailpilot.model.Candidate;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 import java.util.Optional;
 
-public interface CandidateRepository extends JpaRepository<Candidate, Long> {
-    
+public interface CandidateRepository
+        extends JpaRepository<Candidate, Long> {
+
     List<Candidate> findByStatus(String status);
 
     Optional<Candidate> findByEmailIgnoreCase(String email);
 
-    // New Logic: Ask MySQL to count records for the report
     long countByStatus(String status);
 }
