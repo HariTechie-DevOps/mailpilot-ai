@@ -59,6 +59,12 @@
              <version>v1-rev20220404-2.0.0</version>
          </dependency>
 
+         <dependency>
+             <groupId>com.theokanning.openai-gpt3-java</groupId>
+             <artifactId>service</artifactId>
+             <version>0.18.2</version>
+         </dependency>
+
         <!-- Starter Test (Optional but recommended) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
