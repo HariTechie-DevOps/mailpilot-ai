@@ -31,29 +31,35 @@ public class GmailReaderService {
      * Logic: Authenticates the user and returns a Gmail service instance.
      */
     private Gmail getGmailService() throws Exception {
-        InputStream in = GmailReaderService.class.getResourceAsStream("/credentials.json");
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
-                GsonFactory.getDefaultInstance(), new InputStreamReader(in));
+    InputStream in = GmailReaderService.class.getResourceAsStream("/credentials.json");
+    GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+            GsonFactory.getDefaultInstance(), new InputStreamReader(in));
 
-        // Logic: Define what permissions we need (Reading and Modifying for marking as read)
-        List<String> scopes = Collections.singletonList(GmailScopes.GMAIL_MODIFY);
+    // Logic: Scopes remain the same (GMAIL_MODIFY)
+    List<String> scopes = Collections.singletonList(GmailScopes.GMAIL_MODIFY);
 
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                GsonFactory.getDefaultInstance(), clientSecrets, scopes)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
-                .setAccessType("offline")
-                .build();
+    GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            GoogleNetHttpTransport.newTrustedTransport(),
+            GsonFactory.getDefaultInstance(), clientSecrets, scopes)
+            .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+            .setAccessType("offline")
+            .build();
 
-        // Logic: This opens the browser for the "Handshake"
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-        Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+    // Logic: Use LocalServerReceiver even with Web ID for the "Callback" capture
+    // This is a common real-world trick for headless servers (AWS) using an SSH tunnel.
+    LocalServerReceiver receiver = new LocalServerReceiver.Builder()
+            .setPort(8888) // Ensure this port is open/tunneled
+            .build();
 
-        return new Gmail.Builder(GoogleNetHttpTransport.newTrustedTransport(), 
-                GsonFactory.getDefaultInstance(), credential)
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-    }
+    // AuthorizationCodeInstalledApp works with Web Credentials as long as the 
+    // Redirect URI in Google Console includes http://localhost:8888/Callback
+    Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+
+    return new Gmail.Builder(GoogleNetHttpTransport.newTrustedTransport(), 
+            GsonFactory.getDefaultInstance(), credential)
+            .setApplicationName(APPLICATION_NAME)
+            .build();
+}
 
     public List<IncomingEmail> readEmails() {
         List<IncomingEmail> emails = new ArrayList<>();
