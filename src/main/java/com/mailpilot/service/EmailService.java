@@ -5,7 +5,7 @@ import com.mailpilot.model.EmailLog;
 import com.mailpilot.model.IncomingEmail;
 import com.mailpilot.repository.CandidateRepository;
 import com.mailpilot.repository.EmailLogRepository;
-
+import com.mailpilot.template.EmailTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -21,6 +21,9 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private EmailTemplateService emailTemplateService;
+    
     @Autowired
     private EmailLogRepository emailLogRepository;
 
@@ -77,13 +80,12 @@ public class EmailService {
 
     public void sendToShortlisted(List<Candidate> candidates) {
 
-        for (Candidate c : candidates) {
+        for (Candidate candidate : candidates) {
 
             sendEmail(
-                    c.getEmail(),
-                    "Shortlisted",
-                    "Dear " + c.getName() +
-                            ", you are shortlisted for the interview."
+                    candidate.getEmail(),
+                    emailTemplateService.getShortlistSubject(),
+                    emailTemplateService.getShortlistBody(candidate)
             );
         }
     }
@@ -103,15 +105,11 @@ public class EmailService {
 
             candidateRepository.save(c);
 
-            String subject = "Interview Scheduled";
-
-            String body =
-                    "Dear " + c.getName() +
-                            ",\n\nYour interview is scheduled at: "
-                            + time +
-                            "\n\nRegards,\nHR Team";
-
-            sendEmail(c.getEmail(), subject, body);
+            sendEmail(
+                c.getEmail(),
+                emailTemplateService.getInterviewSubject(),
+                emailTemplateService.getInterviewBody(c)
+            );
         }
     }
 
@@ -194,11 +192,10 @@ public class EmailService {
         candidateRepository.save(candidate);
 
         sendEmail(
-                candidate.getEmail(),
-                "Interview Confirmed",
-                "Thank you for confirming your interview."
+            candidate.getEmail(),
+            emailTemplateService.getConfirmSubject(),
+            emailTemplateService.getConfirmBody(candidate)
         );
-
         return "Confirmation processed";
     }
 
@@ -217,12 +214,10 @@ public class EmailService {
         candidateRepository.save(candidate);
 
         sendEmail(
-                candidate.getEmail(),
-                "New Interview Schedule",
-                "Your new interview time is: "
-                        + newTime
+            candidate.getEmail(),
+            emailTemplateService.getRescheduleSubject(),
+            emailTemplateService.getRescheduleBody(candidate)
         );
-
         return "Reschedule processed";
     }
 
@@ -237,9 +232,9 @@ public class EmailService {
         candidateRepository.save(candidate);
 
         sendEmail(
-                candidate.getEmail(),
-                "Application Withdrawn",
-                "Your application has been marked as withdrawn."
+            candidate.getEmail(),
+            emailTemplateService.getWithdrawSubject(),
+            emailTemplateService.getWithdrawBody(candidate)
         );
 
         return "Withdrawal processed";
