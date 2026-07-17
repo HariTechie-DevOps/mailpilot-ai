@@ -28,6 +28,9 @@ public class EmailService {
     private EmailLogRepository emailLogRepository;
 
     @Autowired
+    private IntentDetectionService intentDetectionService;
+
+    @Autowired
     private CandidateRepository candidateRepository;
 
     // =========================================================
