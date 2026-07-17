@@ -10,13 +10,16 @@ import java.util.List;
 @RequestMapping("/candidate")
 public class CandidateController {
 
+   @Autowired
+    private CandidateWorkflowService candidateWorkflowService;
+
     @Autowired
     private CandidateRepository candidateRepository;
 
     // CREATE: Add a new candidate
     @PostMapping
     public Candidate addCandidate(@RequestBody Candidate candidate) {
-        return candidateRepository.save(candidate);
+        return candidateWorkflowService.createCandidate(candidate);
     }
 
     // READ: Get all candidates (This allows browser testing)
