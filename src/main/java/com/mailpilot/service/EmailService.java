@@ -116,20 +116,7 @@ public class EmailService {
         }
     }
 
-    // =========================================================
-    // AI INTENT DETECTION
-    // =========================================================
-
-    public String detectIntent(String text) {
-        if (text == null) return "UNKNOWN";
-        String cleanText = text.toLowerCase();
-
-        if (cleanText.matches(".*(withdraw|cancel|not interested).*")) return "REJECT";
-        if (cleanText.matches(".*(reschedule|change|another time).*")) return "RESCHEDULE";
-        if (cleanText.matches(".*(confirm|yes|okay|perfect).*")) return "CONFIRM";
-        
-        return "UNKNOWN";
-    }
+    
 
     // =========================================================
     // AUTO SCHEDULE
@@ -151,7 +138,7 @@ public class EmailService {
 
    public String processIncomingEmail(IncomingEmail email) {
 
-    String intent = detectIntent(email.getBody());
+    String intent = intentDetectionService.detectIntent(email.getBody());
 
     Optional<Candidate> optionalCandidate =
             candidateRepository.findByEmailIgnoreCase(email.getFrom());
