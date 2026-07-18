@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger; // Add these imports
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,26 +43,22 @@ public class EmailService {
     @Autowired private OfferGeneratorService offerService;
     @Autowired private CandidateRepository repository;
 
-    public void processIncomingEmail(String emailId) {
-        // 1. Fetch email and candidate
-        Email email = emailReader.fetch(emailId);
-        Candidate candidate = repository.findByEmail(email.getSender());
 
-        // 2. Identify intent
-        String intent = aiService.detectIntent(email.getBody());
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-        // 3. Determine next status via State Machine
-        CandidateStatus nextStatus = workflow.nextStatus(candidate.getStatus(), intent);
-
-        // 4. Execute action based on status
-        if (nextStatus == CandidateStatus.OFFER_SENT) {
-            offerService.generateAndSendOffer(candidate);
+    // PASTE METHOD HERE
+    public String processIncomingEmail(IncomingEmail email) {
+        logger.info("Processing email from: {}", email.getFrom());
+        try {
+            // ... all your existing logic goes here ...
+            return "Processing completed";
+        } catch (Exception e) {
+            logger.error("Failed to process email for {}: {}", email.getFrom(), e.getMessage());
+            return "Error occurred";
         }
-        
-        // 5. Update database
-        candidate.setStatus(nextStatus);
-        repository.save(candidate);
     }
+
+  
 
 
     public enum CandidateStatus {
