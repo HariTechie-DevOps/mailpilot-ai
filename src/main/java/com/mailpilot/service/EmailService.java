@@ -22,6 +22,9 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     @Autowired
+    private OpenAIService openAIService;
+
+    @Autowired
     private EmailTemplateService emailTemplateService;
     
     @Autowired
@@ -32,6 +35,11 @@ public class EmailService {
 
     @Autowired
     private CandidateRepository candidateRepository;
+
+
+    public enum CandidateStatus {
+        APPLIED, SHORTLISTED, INTERVIEW_SCHEDULED, CONFIRMED, OFFER_SENT, WITHDRAWN
+    }
 
     // =========================================================
     // SEND NORMAL EMAIL
@@ -59,6 +67,12 @@ public class EmailService {
 
             return "Email Failed: " + e.getMessage();
         }
+    }
+
+    public String processIncomingEmail(IncomingEmail email) {
+        String intent = openAIService.detectIntent(email.getBody());
+        // Now use this intent to trigger your status updates
+        // ... proceed with your existing status change logic ...
     }
 
     // =========================================================
@@ -132,16 +146,7 @@ public class EmailService {
                 .withNano(0);
     }
 
-    // =========================================================
-    // PROCESS INCOMING EMAIL
-    // =========================================================
 
-   public String processIncomingEmail(IncomingEmail email) {
-
-    String intent = intentDetectionService.detectIntent(email.getBody());
-
-    Optional<Candidate> optionalCandidate =
-            candidateRepository.findByEmailIgnoreCase(email.getFrom());
 
     // =========================================================
     // VALIDATION
