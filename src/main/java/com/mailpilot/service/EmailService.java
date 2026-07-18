@@ -36,6 +36,32 @@ public class EmailService {
     @Autowired
     private CandidateRepository candidateRepository;
 
+    @Autowired private OpenAIService aiService;
+    @Autowired private WorkflowManager workflow;
+    @Autowired private OfferGeneratorService offerService;
+    @Autowired private CandidateRepository repository;
+
+    public void processIncomingEmail(String emailId) {
+        // 1. Fetch email and candidate
+        Email email = emailReader.fetch(emailId);
+        Candidate candidate = repository.findByEmail(email.getSender());
+
+        // 2. Identify intent
+        String intent = aiService.detectIntent(email.getBody());
+
+        // 3. Determine next status via State Machine
+        CandidateStatus nextStatus = workflow.nextStatus(candidate.getStatus(), intent);
+
+        // 4. Execute action based on status
+        if (nextStatus == CandidateStatus.OFFER_SENT) {
+            offerService.generateAndSendOffer(candidate);
+        }
+        
+        // 5. Update database
+        candidate.setStatus(nextStatus);
+        repository.save(candidate);
+    }
+
 
     public enum CandidateStatus {
         APPLIED, SHORTLISTED, INTERVIEW_SCHEDULED, CONFIRMED, OFFER_SENT, WITHDRAWN
@@ -69,11 +95,6 @@ public class EmailService {
         }
     }
 
-    public String processIncomingEmail(IncomingEmail email) {
-        String intent = openAIService.detectIntent(email.getBody());
-        // Now use this intent to trigger your status updates
-        // ... proceed with your existing status change logic ...
-    }
 
     // =========================================================
     // BULK EMAIL
