@@ -46,15 +46,65 @@ public class EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-    // PASTE METHOD HERE
     public String processIncomingEmail(IncomingEmail email) {
         logger.info("Processing email from: {}", email.getFrom());
         try {
-            // ... all your existing logic goes here ...
+            // 1. Find candidate by email
+            Optional<Candidate> optionalCandidate = candidateRepository.findByEmailIgnoreCase(email.getFrom());
+            if (optionalCandidate.isEmpty()) {
+                return "Candidate not found";
+            }
+
+            Candidate candidate = optionalCandidate.get();
+
+            // 2. Protection check for withdrawn candidates
+            if ("WITHDRAWN".equalsIgnoreCase(candidate.getStatus())) {
+                System.out.println("Skipping withdrawn candidate: " + candidate.getName());
+                return "Candidate already withdrawn";
+            }
+
+            // 3. Detect intent (using your IntentDetectionService or OpenAIService)
+            String intent = intentDetectionService.detectIntent(email.getBody());
+            if (intent.equals("UNKNOWN")) {
+                return "Unknown intent";
+            }
+
+            // 4. Process based on intent
+            if (intent.equals("CONFIRM")) {
+                candidate.setStatus("CONFIRMED");
+                candidateRepository.save(candidate);
+                sendEmail(
+                    candidate.getEmail(),
+                    emailTemplateService.getConfirmSubject(),
+                    emailTemplateService.getConfirmBody(candidate)
+                );
+                return "Confirmation processed";
+            } else if (intent.equals("RESCHEDULE")) {
+                LocalDateTime newTime = autoSchedule();
+                candidate.setInterviewTime(newTime);
+                candidate.setStatus("RESCHEDULED");
+                candidateRepository.save(candidate);
+                sendEmail(
+                    candidate.getEmail(),
+                    emailTemplateService.getRescheduleSubject(),
+                    emailTemplateService.getRescheduleBody(candidate)
+                );
+                return "Reschedule processed";
+            } else if (intent.equals("REJECT")) {
+                candidate.setStatus("WITHDRAWN");
+                candidateRepository.save(candidate);
+                sendEmail(
+                    candidate.getEmail(),
+                    emailTemplateService.getWithdrawSubject(),
+                    emailTemplateService.getWithdrawBody(candidate)
+                );
+                return "Withdrawal processed";
+            }
+
             return "Processing completed";
         } catch (Exception e) {
             logger.error("Failed to process email for {}: {}", email.getFrom(), e.getMessage());
-            return "Error occurred";
+            return "Error occurred: " + e.getMessage();
         }
     }
 
